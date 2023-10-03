@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.ToString;
 
 // TODO: Annotationen für Getter, Konstruktor und toString einfügen
+@Getter
+@AllArgsConstructor
+@ToString
 public class Name {
     private String name;
     private String geschlecht;
