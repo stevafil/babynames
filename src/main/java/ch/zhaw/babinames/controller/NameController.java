@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,17 +45,29 @@ public class NameController {
             .findFirst().orElse(0);
     }
 
-    @GetMapping("/names/name")
-    public List<String> filterNames(@RequestParam String sex, @RequestParam String start,
-            @RequestParam int length) {
-        List<String> names = listOfNames.stream()
-                .filter(x -> x.getName().startsWith(start))
-                .filter(x -> x.getName().length() == length)
-                .filter(x -> x.getGeschlecht().equals(sex))
-                .map(x -> x.getName())
-                .collect(Collectors.toList());
-        return names;
+    
+@GetMapping("/names/name")
+public ResponseEntity<List<Name>> filterNames(
+        @RequestParam String sex, 
+        @RequestParam String start, 
+        @RequestParam int length) {
+    
+    if (start == null || length <= 0 || !(sex.equals("m") || sex.equals("w"))) {
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
+
+    List<Name> names = listOfNames.stream()
+            .filter(x -> x.getName().startsWith(start))
+            .filter(x -> x.getName().length() == length)
+            .filter(x -> x.getGeschlecht().equals(sex))
+            .collect(Collectors.toList());
+
+    if (names.isEmpty()) {
+        return new ResponseEntity<>(names, HttpStatus.NOT_FOUND);
+    }
+
+    return new ResponseEntity<>(names, HttpStatus.OK);
+}
 
     @EventListener(ApplicationReadyEvent.class)
     public void runAfterStartup() throws Exception {
