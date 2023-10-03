@@ -56,11 +56,14 @@ public ResponseEntity<List<Name>> filterNames(
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
+    String capitalizedStart = start.substring(0, 1).toUpperCase() + start.substring(1).toLowerCase();
+    String upperCaseSex = sex.toUpperCase();
+
     List<Name> names = listOfNames.stream()
-            .filter(x -> x.getName().startsWith(start))
-            .filter(x -> x.getName().length() == length)
-            .filter(x -> x.getGeschlecht().equals(sex))
-            .collect(Collectors.toList());
+    .filter(x -> x.getName().startsWith(capitalizedStart)) // Vergleiche mit kapitalisiertem Start
+    .filter(x -> x.getName().length() == length)
+    .filter(x -> x.getGeschlecht().toUpperCase().equals(upperCaseSex)) // Vergleiche Großbuchstaben
+    .collect(Collectors.toList());
 
     if (names.isEmpty()) {
         return new ResponseEntity<>(names, HttpStatus.NOT_FOUND);
